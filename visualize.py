@@ -39,6 +39,14 @@ def sort_agreement(key):
 
   return 99
 
+def sort_pcheck_frequence(key):
+  VALUES = {'Ποτέ':1, 'Μόνο όταν υποψιάζομαι κάτι':2, 'Σπάνια':3, 'Συχνά':4}
+
+  if key in VALUES:
+    return VALUES[key]
+
+  return 99
+
 def sort_boolean(key):
   # Αυτή η "βαθμολόγηση" συμβάλλει μόνον στην σωστή απόδοση χρωμάτων
   VALUES = {'Όχι':1,'Αρνητικά':1,'Ναι':2,'Θετικά':2}
@@ -64,12 +72,16 @@ def vis_fb_importance():
 def vis_accept_friend_requests():
   return vis_col_count(14, "Σημαντικότητα", colours=YES_NO_PALETTE, custom_sort=sort_boolean)
 
+def vis_privacy_check():
+  return vis_col_count(17, "Συχνότητα", colours=AGREEMENT_PALETTE, custom_sort=sort_pcheck_frequence)
+
 VISUALIZEABLE = {
   df.columns[1]:  vis_gender,
   df.columns[2]:  vis_age,
   df.columns[3]:  vis_education,
   df.columns[5]:  vis_fb_importance,
   df.columns[14]: vis_accept_friend_requests,
+  df.columns[17]: vis_privacy_check
 }
 
 
