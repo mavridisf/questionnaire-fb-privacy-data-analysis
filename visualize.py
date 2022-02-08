@@ -12,7 +12,7 @@ check_data()
 
 ### Προκαθορισμένες παλέττες
 AGREEMENT_PALETTE = ['#C44040','#C46C40','#C49840','#C4C440','#98C440','#6CC440','#40C440']
-YES_NO_PALETTE    = ['#C44040','#40C440'] + ['#CCCCCC'] * 8
+YES_NO_PALETTE    = ['#C44040','#40C440','#CCCCCC']
 
 ### Συναρτήσεις σωστής ταξινόμισης
 def sort_age(key):
@@ -56,6 +56,15 @@ def sort_boolean(key):
 
   return 3
 
+def sort_privacy_policy(key):
+  # Αυτή η "βαθμολόγηση" συμβάλλει μόνον στην σωστή απόδοση χρωμάτων
+  VALUES = {'Ναι, και την κατάλαβα':1,'Ναι, αλλά δεν την κατάλαβα':2,'Όχι':3,'Δεν ξέρω τι είναι η πολιτική απορρήτου':4}
+
+  if key in VALUES:
+    return VALUES[key]
+
+  return 3
+
 ### Συναρτήσεις οπτικοποίησης
 def vis_gender():
   return vis_col_count(1, "Φύλο", colours=['royalblue','magenta','lightgray'])
@@ -78,6 +87,9 @@ def vis_privacy_check():
 def vis_privacy_worry():
   return vis_col_count(18, "Άποψη", colours=AGREEMENT_PALETTE, custom_sort=sort_agreement)
 
+def vis_privacy_policy():
+  return vis_col_count(19, "Άποψη", colours=['#40C440','#C4C440','#C44040','#CCCCCC'], custom_sort=sort_privacy_policy)
+
 VISUALIZEABLE = {
   df.columns[1]:  vis_gender,
   df.columns[2]:  vis_age,
@@ -86,6 +98,7 @@ VISUALIZEABLE = {
   df.columns[14]: vis_accept_friend_requests,
   df.columns[17]: vis_privacy_check,
   df.columns[18]: vis_privacy_worry,
+  df.columns[19]: vis_privacy_policy,
 }
 
 
