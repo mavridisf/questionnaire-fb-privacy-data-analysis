@@ -110,6 +110,9 @@ def vis_decentralized():
 def vis_delete_fb():
   return vis_col_count(28, "Άποψη", colours=AGREEMENT_PALETTE, custom_sort=sort_agreement)
 
+def vis_fb_tip():
+  return vis_col_count(29, "Άποψη")
+
 VISUALIZEABLE = {
   df.columns[1]:  vis_gender,
   df.columns[2]:  vis_age,
@@ -121,7 +124,8 @@ VISUALIZEABLE = {
   df.columns[19]: vis_privacy_policy,
   df.columns[21]: vis_cookies,
   df.columns[22]: vis_decentralized,
-  df.columns[28]: vis_delete_fb
+  df.columns[28]: vis_delete_fb,
+  df.columns[29]: vis_fb_tip
 }
 
 
@@ -147,7 +151,7 @@ def vis_col_count(column_id, label, colours = None, custom_sort = None):
   return f.plot.pie(y=label,
                     autopct='%1.0f%%',
                     title=df.columns[column_id],
-                    figsize=(10, 10),
+                    figsize=(12, 10),
                     colors=colours,
                     labeldistance = None,
                     counterclock = False)
