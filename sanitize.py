@@ -148,6 +148,13 @@ if __name__ == '__main__':
 
   print()
 
+  # Αφαίρεση ανηλίκων
+  underage = nf[nf[QAGE] == "Κάτω των 18"].shape[0]
+  nf = nf[nf[QAGE] != "Κάτω των 18"]
+  print("Αφαιρέθηκαν {} ανήλικοι.".format(underage))
+
+  print()
+
   # Εξισορρόπιση φύλων
   genders = αναλογία_φύλων(nf)
   diff = genders['Θήλυ'] - genders['Άρρεν']
