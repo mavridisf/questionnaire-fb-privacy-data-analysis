@@ -27,6 +27,14 @@ def sort_education(key):
 
   return "99 {}".format(key)
 
+def sort_importance(key):
+  VALUES = {'Καθόλου':1, 'Λίγο':2, 'Αρκετά':3, 'Πολύ':4, 'Πάρα πολύ':5, 'Απόλυτα':6}
+
+  if key in VALUES:
+    return VALUES[key]
+
+  return 99
+
 
 ### Συναρτήσεις οπτικοποίησης
 def vis_gender():
@@ -38,10 +46,14 @@ def vis_age():
 def vis_education():
   return vis_col_count(3, "Επίπεδο εκπαίδευσης", custom_sort=sort_education)
 
+def vis_fb_importance():
+  return vis_col_count(5, "Σημαντικότητα", colours=['#C44040','#C46C40','#C49840','#C4C440','#98C440','#6CC440','#40C440'], custom_sort=sort_importance)
+
 VISUALIZEABLE = {
   df.columns[1]: vis_gender,
   df.columns[2]: vis_age,
   df.columns[3]: vis_education,
+  df.columns[5]: vis_fb_importance
 }
 
 
