@@ -11,8 +11,9 @@ check_data()
 
 
 ### Προκαθορισμένες παλέττες
-AGREEMENT_PALETTE = ['#C44040','#C46C40','#C49840','#C4C440','#98C440','#6CC440','#40C440']
-YES_NO_PALETTE    = ['#C44040','#40C440','#CCCCCC']
+IMPORTANCE_PALETTE = ['#C44040','#C46C40','#C49840','#C4C440','#98C440','#6CC440','#40C440']
+AGREEMENT_PALETTE  = ['#C44040','#C49840','#D5B900','#98C440','#40C440']
+YES_NO_PALETTE     = ['#C44040','#40C440','#CCCCCC']
 
 ### Συναρτήσεις σωστής ταξινόμισης
 def sort_age(key):
@@ -31,8 +32,16 @@ def sort_education(key):
 
   return "99 {}".format(key)
 
-def sort_agreement(key):
+def sort_importance(key):
   VALUES = {'Καθόλου':1, 'Λίγο':2, 'Αρκετά':3, 'Πολύ':4, 'Πάρα πολύ':5, 'Απόλυτα':6}
+
+  if key in VALUES:
+    return VALUES[key]
+
+  return 99
+
+def sort_agreement(key):
+  VALUES = {'Διαφωνώ απόλυτα':1, 'Διαφωνώ':2, 'Ούτε συμφωνώ ούτε διαφωνώ':3, 'Συμφωνώ':4, 'Συμφωνώ απόλυτα':5}
 
   if key in VALUES:
     return VALUES[key]
@@ -78,16 +87,16 @@ def vis_education():
   return vis_col_count(3, "Επίπεδο εκπαίδευσης", custom_sort=sort_education)
 
 def vis_fb_importance():
-  return vis_col_count(5, "Σημαντικότητα", colours=AGREEMENT_PALETTE, custom_sort=sort_agreement)
+  return vis_col_count(5, "Σημαντικότητα", colours=IMPORTANCE_PALETTE, custom_sort=sort_importance)
 
 def vis_accept_friend_requests():
   return vis_col_count(14, "Άποψη", colours=YES_NO_PALETTE, custom_sort=sort_boolean)
 
 def vis_privacy_check():
-  return vis_col_count(17, "Συχνότητα", colours=AGREEMENT_PALETTE, custom_sort=sort_pcheck_frequence)
+  return vis_col_count(17, "Συχνότητα", colours=IMPORTANCE_PALETTE, custom_sort=sort_pcheck_frequence)
 
 def vis_privacy_worry():
-  return vis_col_count(18, "Άποψη", colours=AGREEMENT_PALETTE, custom_sort=sort_agreement)
+  return vis_col_count(18, "Άποψη", colours=IMPORTANCE_PALETTE, custom_sort=sort_importance)
 
 def vis_privacy_policy():
   return vis_col_count(19, "Άποψη", colours=['#40C440','#C4C440','#C44040','#CCCCCC'], custom_sort=sort_privacy_policy)
@@ -97,6 +106,9 @@ def vis_cookies():
 
 def vis_decentralized():
   return vis_col_count(22, "Άποψη", colours=YES_NO_PALETTE, custom_sort=sort_boolean)
+
+def vis_delete_fb():
+  return vis_col_count(28, "Άποψη", colours=AGREEMENT_PALETTE, custom_sort=sort_agreement)
 
 VISUALIZEABLE = {
   df.columns[1]:  vis_gender,
@@ -108,7 +120,8 @@ VISUALIZEABLE = {
   df.columns[18]: vis_privacy_worry,
   df.columns[19]: vis_privacy_policy,
   df.columns[21]: vis_cookies,
-  df.columns[22]: vis_decentralized
+  df.columns[22]: vis_decentralized,
+  df.columns[28]: vis_delete_fb
 }
 
 
