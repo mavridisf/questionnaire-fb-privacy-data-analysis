@@ -10,6 +10,10 @@ from curses.textpad import Textbox
 check_data()
 
 
+### Προκαθορισμένες παλέττες
+AGREEMENT_PALETTE = ['#C44040','#C46C40','#C49840','#C4C440','#98C440','#6CC440','#40C440']
+YES_NO_PALETTE    = ['#C44040','#40C440'] + ['#CCCCCC'] * 8
+
 ### Συναρτήσεις σωστής ταξινόμισης
 def sort_age(key):
   if key == "Κάτω των 18":
@@ -27,7 +31,7 @@ def sort_education(key):
 
   return "99 {}".format(key)
 
-def sort_importance(key):
+def sort_agreement(key):
   VALUES = {'Καθόλου':1, 'Λίγο':2, 'Αρκετά':3, 'Πολύ':4, 'Πάρα πολύ':5, 'Απόλυτα':6}
 
   if key in VALUES:
@@ -35,6 +39,14 @@ def sort_importance(key):
 
   return 99
 
+def sort_boolean(key):
+  # Αυτή η "βαθμολόγηση" συμβάλλει μόνον στην σωστή απόδοση χρωμάτων
+  VALUES = {'Όχι':1,'Αρνητικά':1,'Ναι':2,'Θετικά':2}
+
+  if key in VALUES:
+    return VALUES[key]
+
+  return 3
 
 ### Συναρτήσεις οπτικοποίησης
 def vis_gender():
@@ -47,13 +59,17 @@ def vis_education():
   return vis_col_count(3, "Επίπεδο εκπαίδευσης", custom_sort=sort_education)
 
 def vis_fb_importance():
-  return vis_col_count(5, "Σημαντικότητα", colours=['#C44040','#C46C40','#C49840','#C4C440','#98C440','#6CC440','#40C440'], custom_sort=sort_importance)
+  return vis_col_count(5, "Σημαντικότητα", colours=AGREEMENT_PALETTE, custom_sort=sort_agreement)
+
+def vis_accept_friend_requests():
+  return vis_col_count(14, "Σημαντικότητα", colours=YES_NO_PALETTE, custom_sort=sort_boolean)
 
 VISUALIZEABLE = {
-  df.columns[1]: vis_gender,
-  df.columns[2]: vis_age,
-  df.columns[3]: vis_education,
-  df.columns[5]: vis_fb_importance
+  df.columns[1]:  vis_gender,
+  df.columns[2]:  vis_age,
+  df.columns[3]:  vis_education,
+  df.columns[5]:  vis_fb_importance,
+  df.columns[14]: vis_accept_friend_requests,
 }
 
 
