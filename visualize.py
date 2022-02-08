@@ -95,6 +95,9 @@ def vis_privacy_policy():
 def vis_cookies():
   return vis_col_count(21, "Άποψη", custom_sort=sort_cookies)
 
+def vis_decentralized():
+  return vis_col_count(22, "Άποψη", colours=YES_NO_PALETTE, custom_sort=sort_boolean)
+
 VISUALIZEABLE = {
   df.columns[1]:  vis_gender,
   df.columns[2]:  vis_age,
@@ -104,7 +107,8 @@ VISUALIZEABLE = {
   df.columns[17]: vis_privacy_check,
   df.columns[18]: vis_privacy_worry,
   df.columns[19]: vis_privacy_policy,
-  df.columns[21]: vis_cookies
+  df.columns[21]: vis_cookies,
+  df.columns[22]: vis_decentralized
 }
 
 
