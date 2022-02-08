@@ -70,10 +70,13 @@ def vis_fb_importance():
   return vis_col_count(5, "Σημαντικότητα", colours=AGREEMENT_PALETTE, custom_sort=sort_agreement)
 
 def vis_accept_friend_requests():
-  return vis_col_count(14, "Σημαντικότητα", colours=YES_NO_PALETTE, custom_sort=sort_boolean)
+  return vis_col_count(14, "Άποψη", colours=YES_NO_PALETTE, custom_sort=sort_boolean)
 
 def vis_privacy_check():
   return vis_col_count(17, "Συχνότητα", colours=AGREEMENT_PALETTE, custom_sort=sort_pcheck_frequence)
+
+def vis_privacy_worry():
+  return vis_col_count(18, "Άποψη", colours=AGREEMENT_PALETTE, custom_sort=sort_agreement)
 
 VISUALIZEABLE = {
   df.columns[1]:  vis_gender,
@@ -81,7 +84,8 @@ VISUALIZEABLE = {
   df.columns[3]:  vis_education,
   df.columns[5]:  vis_fb_importance,
   df.columns[14]: vis_accept_friend_requests,
-  df.columns[17]: vis_privacy_check
+  df.columns[17]: vis_privacy_check,
+  df.columns[18]: vis_privacy_worry,
 }
 
 
