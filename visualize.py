@@ -60,10 +60,12 @@ def sort_privacy_policy(key):
   # Αυτή η "βαθμολόγηση" συμβάλλει μόνον στην σωστή απόδοση χρωμάτων
   VALUES = {'Ναι, και την κατάλαβα':1,'Ναι, αλλά δεν την κατάλαβα':2,'Όχι':3,'Δεν ξέρω τι είναι η πολιτική απορρήτου':4}
 
-  if key in VALUES:
-    return VALUES[key]
+  return VALUES[key]
 
-  return 3
+def sort_cookies(key):
+  VALUES=["Όλα","Μόνο τα απαραίτητα","Απλώς κλείνω το σχετικό παραθυράκι που αναδύεται και το προσπερνώ","Δεν ξέρω/δε θυμάμαι"]
+
+  return VALUES.index(key)+1
 
 ### Συναρτήσεις οπτικοποίησης
 def vis_gender():
@@ -90,6 +92,9 @@ def vis_privacy_worry():
 def vis_privacy_policy():
   return vis_col_count(19, "Άποψη", colours=['#40C440','#C4C440','#C44040','#CCCCCC'], custom_sort=sort_privacy_policy)
 
+def vis_cookies():
+  return vis_col_count(21, "Άποψη", custom_sort=sort_cookies)
+
 VISUALIZEABLE = {
   df.columns[1]:  vis_gender,
   df.columns[2]:  vis_age,
@@ -99,6 +104,7 @@ VISUALIZEABLE = {
   df.columns[17]: vis_privacy_check,
   df.columns[18]: vis_privacy_worry,
   df.columns[19]: vis_privacy_policy,
+  df.columns[21]: vis_cookies
 }
 
 
