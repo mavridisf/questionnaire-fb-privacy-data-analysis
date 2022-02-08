@@ -138,6 +138,16 @@ if __name__ == '__main__':
 
   print()
 
+  # Συγχώνευση 'Πανεπιστήμιο' με 'Πανεπιστήμιο ΑΕΙ/ΑΤΕΙ' (επανάληψη)
+  subst = nf[nf[QEDU] == "Πανεπιστήμιο"].index
+  for i in subst:
+    nf.loc[i, QEDU] = "Πανεπιστήμιο ΑΕΙ/ΑΤΕΙ"
+
+  print("Διορθώθηκαν διπλότυπες κατηγορίες:")
+  print("\t{}".format(subst.size))
+
+  print()
+
   # Εξισορρόπιση φύλων
   genders = αναλογία_φύλων(nf)
   diff = genders['Θήλυ'] - genders['Άρρεν']
