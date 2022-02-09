@@ -78,47 +78,59 @@ def sort_cookies(key):
 
 ### Συναρτήσεις οπτικοποίησης
 def vis_gender():
-  return vis_col_count(1, "Φύλο", colours=['royalblue','magenta','lightgray'])
+  return vis_pie(1,  "Φύλο", colours=['royalblue','magenta','lightgray'])
 
 def vis_age():
-  return vis_col_count(2, "Ηλικία", colours=['#FFCDDA','#FFA5BD','#FF7DA0','#FF5582','#FF2D65'], custom_sort=sort_age)
+  return vis_pie(2,  "Ηλικία", colours=['#FFCDDA','#FFA5BD','#FF7DA0','#FF5582','#FF2D65'], custom_sort=sort_age)
 
 def vis_education():
-  return vis_col_count(3, "Επίπεδο εκπαίδευσης", custom_sort=sort_education)
+  return vis_pie(3,  "Επίπεδο εκπαίδευσης", custom_sort=sort_education)
 
 def vis_fb_importance():
-  return vis_col_count(5, "Σημαντικότητα", colours=IMPORTANCE_PALETTE, custom_sort=sort_importance)
+  return vis_pie(5,  "Σημαντικότητα", colours=IMPORTANCE_PALETTE, custom_sort=sort_importance)
 
 def vis_accept_friend_requests():
-  return vis_col_count(14, "Άποψη", colours=YES_NO_PALETTE, custom_sort=sort_boolean)
+  return vis_pie(14, "Άποψη", colours=YES_NO_PALETTE, custom_sort=sort_boolean)
 
 def vis_privacy_check():
-  return vis_col_count(17, "Συχνότητα", colours=IMPORTANCE_PALETTE, custom_sort=sort_pcheck_frequence)
+  return vis_pie(17, "Συχνότητα", colours=IMPORTANCE_PALETTE, custom_sort=sort_pcheck_frequence)
 
 def vis_privacy_worry():
-  return vis_col_count(18, "Άποψη", colours=IMPORTANCE_PALETTE, custom_sort=sort_importance)
+  return vis_pie(18, "Άποψη", colours=IMPORTANCE_PALETTE, custom_sort=sort_importance)
 
 def vis_privacy_policy():
-  return vis_col_count(19, "Άποψη", colours=['#40C440','#C4C440','#C44040','#CCCCCC'], custom_sort=sort_privacy_policy)
+  return vis_pie(19, "Άποψη", colours=['#40C440','#C4C440','#C44040','#CCCCCC'], custom_sort=sort_privacy_policy)
 
 def vis_cookies():
-  return vis_col_count(21, "Άποψη", custom_sort=sort_cookies)
+  return vis_pie(21, "Άποψη", custom_sort=sort_cookies)
 
 def vis_decentralized():
-  return vis_col_count(22, "Άποψη", colours=YES_NO_PALETTE, custom_sort=sort_boolean)
+  return vis_pie(22, "Άποψη", colours=YES_NO_PALETTE, custom_sort=sort_boolean)
 
 def vis_delete_fb():
-  return vis_col_count(28, "Άποψη", colours=AGREEMENT_PALETTE, custom_sort=sort_agreement)
+  return vis_pie(28, "Άποψη", colours=AGREEMENT_PALETTE, custom_sort=sort_agreement)
 
 def vis_fb_tip():
-  return vis_col_count(29, "Άποψη")
+  return vis_pie(29, "Άποψη")
+
+def vis_why_fb():
+  return vis_pie(4,  "Άτομα", True)
+
+def vis_real_data():
+  return vis_bar(6,  "Άτομα", multiple=True, colours='#C45D5F')
+
+def vis_positive_friend_because():
+  return vis_bar(15, "Άτομα", multiple=True, colours='#C45D5F')
 
 VISUALIZEABLE = {
   df.columns[1]:  vis_gender,
   df.columns[2]:  vis_age,
   df.columns[3]:  vis_education,
+  df.columns[4]:  vis_why_fb,
   df.columns[5]:  vis_fb_importance,
+  df.columns[6]:  vis_real_data,
   df.columns[14]: vis_accept_friend_requests,
+  df.columns[15]: vis_positive_friend_because,
   df.columns[17]: vis_privacy_check,
   df.columns[18]: vis_privacy_worry,
   df.columns[19]: vis_privacy_policy,
@@ -136,25 +148,65 @@ def vis_name_by_id(i):
 def vis_func_by_id(i):
   return VISUALIZEABLE[vis_name_by_id(i)]
 
-def vis_col_count(column_id, label, colours = None, custom_sort = None):
+def get_data_basic(column_id, label, custom_sort):
   data = []
   col  = df[df.columns[column_id]]
   for v in col.unique():
     data.append((v, df[col == v].shape[0]))
 
   if custom_sort is not None:
-    data = (sorted(data, key=lambda x: custom_sort(x[0]) ))
+    data = sorted(data, key=lambda x: custom_sort(x[0]))
 
-  f = pd.DataFrame({label: [x[1] for x in data]},
-                   index = [x[0] for x in data])
+  return pd.DataFrame({label: [x[1] for x in data]},
+                      index = [x[0] for x in data])
 
-  return f.plot.pie(y=label,
-                    autopct='%1.0f%%',
+def get_data_multiple(column_id, label, custom_sort):
+  col  = df[df.columns[column_id]]
+  data = {}
+
+  for v in col:
+    for s in v.split(';'):
+      if s not in data.keys():
+        data[s] = 1
+      else:
+        data[s] += 1
+
+  sets = []
+  for v in data.keys():
+    sets.append((v, data[v]))
+  sets.reverse()
+
+
+  if custom_sort is not None:
+    sets = sorted(sets, key=lambda x: custom_sort(x[0]))
+
+  return pd.DataFrame({label: [x[1] for x in sets]},
+                      index = [x[0] for x in sets])
+
+def vis_pie(column_id, label, multiple = False, colours = None, custom_sort = None):
+  getter = get_data_multiple if multiple else get_data_basic
+  frame  = getter(column_id, label, custom_sort)
+  plot   = frame.plot.pie(y=label,
+                          autopct='%1.0f%%',
+                          title=df.columns[column_id],
+                          colors=colours,
+                          labeldistance = None,
+                          counterclock = False,
+                          fontsize=8)
+  plot.legend(frame.index, bbox_to_anchor=(1.05, 1), loc="upper left")
+  return plot
+
+def vis_bar(column_id, label, vertical = False, colours = None, multiple = False, custom_sort = None):
+  getter  = get_data_multiple if multiple else get_data_basic
+  frame   = getter(column_id, label, custom_sort)
+  plotter = frame.plot.bar if vertical else frame.plot.barh
+  plot    = plotter(y=label,
                     title=df.columns[column_id],
-                    figsize=(12, 10),
-                    colors=colours,
-                    labeldistance = None,
-                    counterclock = False)
+                    align='edge',
+                    color=colours,
+                    fontsize=8)
+  plot.legend([label], bbox_to_anchor=(1.05, 1), loc="upper left")
+  return plot
 
 ### ΚΥΡΙΩΣ ΣΩΜΑ
 
@@ -174,7 +226,7 @@ def main(win):
   fig  = plot.get_figure()
 
   savename = save(win, choice).strip()
-  fig.savefig(savename)
+  fig.savefig(savename, bbox_inches="tight")
   exit(0)
 
 # Παράθυρο επιλογής ερώτησης
