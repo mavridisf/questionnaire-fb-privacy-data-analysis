@@ -122,6 +122,12 @@ def vis_real_data():
 def vis_positive_friend_because():
   return vis_bar(15, "Άτομα", multiple=True, colours='#C45D5F')
 
+def vis_true_or_false():
+  return vis_bar(16, "Άτομα", multiple=True, colours='#C45D5F')
+
+def vis_data_uses():
+  return vis_bar(20, "Άτομα", multiple=True, colours='#C45D5F')
+
 VISUALIZEABLE = {
   df.columns[1]:  vis_gender,
   df.columns[2]:  vis_age,
@@ -131,9 +137,11 @@ VISUALIZEABLE = {
   df.columns[6]:  vis_real_data,
   df.columns[14]: vis_accept_friend_requests,
   df.columns[15]: vis_positive_friend_because,
+  df.columns[16]: vis_true_or_false,
   df.columns[17]: vis_privacy_check,
   df.columns[18]: vis_privacy_worry,
   df.columns[19]: vis_privacy_policy,
+  df.columns[20]: vis_data_uses,
   df.columns[21]: vis_cookies,
   df.columns[22]: vis_decentralized,
   df.columns[28]: vis_delete_fb,
