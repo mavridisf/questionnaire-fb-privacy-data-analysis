@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #-*- coding: utf-8 -*-
 
-from _datacore import df, NaN, check_data
+from _datacore import pd, df, NaN, check_data
 from _format   import *
 from random    import randrange
 
@@ -132,28 +132,34 @@ if __name__ == '__main__':
     nf.loc[n, Q3_2_3] = NaN
     nf.loc[n, Q3_2_4] = NaN
     nf.loc[n, Q3_3]   = NaN
-  print("Διορθώθηκαν απατήσεις στις 3.2 και 3.3:")
-  print("\t{}".format(len(wrong)))
+
+  # Σε αυτούς που ανάντησαν, το NaN ισούται με το Δεν το ξέρω
+  nan_value = "Δεν το ξέρω"
+  fixed_nan = 0
+  for i in df[Q3_1].index:
+    if nf[Q3_1][i] == "Ναι":
+      for q in Q3_2_1, Q3_2_2, Q3_2_3,  Q3_2_4:
+        if pd.isna(nf.loc[i,q]):
+          fixed_nan += 1
+          nf.loc[i,q] = nan_value
+
+  print("Διορθώθηκαν απατήσεις στις 3.2 και 3.3: {}".format(len(wrong)+fixed_nan))
   del wrong
 
-  print()
 
   # Συγχώνευση 'Πανεπιστήμιο' με 'Πανεπιστήμιο ΑΕΙ/ΑΤΕΙ' (επανάληψη)
   subst = nf[nf[QEDU] == "Πανεπιστήμιο"].index
   for i in subst:
     nf.loc[i, QEDU] = "Πανεπιστήμιο ΑΕΙ/ΑΤΕΙ"
 
-  print("Διορθώθηκαν διπλότυπες κατηγορίες:")
-  print("\t{}".format(subst.size))
+  print("Διορθώθηκαν διπλότυπες κατηγορίες: {}".format(subst.size))
 
-  print()
 
   # Αφαίρεση ανηλίκων
   underage = nf[nf[QAGE] == "Κάτω των 18"].shape[0]
   nf = nf[nf[QAGE] != "Κάτω των 18"]
   print("Αφαιρέθηκαν {} ανήλικοι.".format(underage))
 
-  print()
 
   # Εξισορρόπιση φύλων
   genders = αναλογία_φύλων(nf)
@@ -193,6 +199,8 @@ if __name__ == '__main__':
     print("\t{} (από τα υπάρχοντα {})".format(rm, matchc))
 
   print("*" * 80)
+  pause()
+  clear_screen()
 
   αναφορά(nf, "αναφορα νεων δεδομενων")
 
