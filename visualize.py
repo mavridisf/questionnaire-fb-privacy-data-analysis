@@ -72,9 +72,14 @@ def sort_privacy_policy(key):
   return VALUES[key]
 
 def sort_cookies(key):
-  VALUES=["Όλα","Μόνο τα απαραίτητα","Απλώς κλείνω το σχετικό παραθυράκι που αναδύεται και το προσπερνώ","Δεν ξέρω/δε θυμάμαι"]
+  ORDER=["Όλα","Μόνο τα απαραίτητα","Απλώς κλείνω το σχετικό παραθυράκι που αναδύεται και το προσπερνώ","Δεν ξέρω/δε θυμάμαι"]
 
-  return VALUES.index(key)+1
+  return ORDER.index(key)+1
+
+def sort_privacy_settings(key):
+  ORDER = ["Όλοι", "Φίλοι", "Συγκεριμένοι φίλοι", "Μόνο εγώ", "Προσαρμοσμένες ρυθμίσεις", "Δεν ξέρω"]
+
+  return ORDER.index(key)+1
 
 ### Συναρτήσεις οπτικοποίησης
 def vis_gender():
@@ -128,6 +133,15 @@ def vis_true_or_false():
 def vis_data_uses():
   return vis_bar(20, "Άτομα", multiple=True, colours='#C45D5F')
 
+def vis_privacy_settings():
+  return vis_multibar(range(7,14), stacked=True, custom_sort=sort_privacy_settings)
+
+def vis_decentralized_pop():
+  return vis_multibar(range(23,27), stacked=True)
+
+def vis_decentralized_worry():
+  return vis_pie(27, "Άποψη", colours=AGREEMENT_PALETTE, custom_sort=sort_agreement)
+
 VISUALIZEABLE = {
   df.columns[1]:  vis_gender,
   df.columns[2]:  vis_age,
@@ -135,6 +149,7 @@ VISUALIZEABLE = {
   df.columns[4]:  vis_why_fb,
   df.columns[5]:  vis_fb_importance,
   df.columns[6]:  vis_real_data,
+  df.columns[7]:  vis_privacy_settings,
   df.columns[14]: vis_accept_friend_requests,
   df.columns[15]: vis_positive_friend_because,
   df.columns[16]: vis_true_or_false,
@@ -144,12 +159,20 @@ VISUALIZEABLE = {
   df.columns[20]: vis_data_uses,
   df.columns[21]: vis_cookies,
   df.columns[22]: vis_decentralized,
+  df.columns[23]: vis_decentralized_pop,
+  df.columns[27]: vis_decentralized_worry,
   df.columns[28]: vis_delete_fb,
   df.columns[29]: vis_fb_tip
 }
 
 
 ### Βοηθητικές συναρτήσεις
+def vis_display_name_by_id(i):
+  name = vis_name_by_id(i)
+  if '[' in name:
+    name = name[:name.index('[')]
+  return name
+
 def vis_name_by_id(i):
   return list(VISUALIZEABLE.keys())[i]
 
@@ -216,6 +239,36 @@ def vis_bar(column_id, label, vertical = False, colours = None, multiple = False
   plot.legend([label], bbox_to_anchor=(1.05, 1), loc="upper left")
   return plot
 
+def vis_multibar(qrange, stacked = False, vertical = False, custom_sort = None):
+  data    = {}
+  indices = []
+  options = []
+  for qid in qrange:
+    for o in df[df.columns[qid]].unique():
+      if o not in options and pd.notna(o):
+        options.append(o)
+
+  if custom_sort:
+    options = sorted(options, key=lambda x: custom_sort(x))
+
+  for qid in qrange:
+    q = df.columns[qid].split(']')[0].split('[')[1]
+    indices.append(q)
+
+    for o in options:
+      if o not in data:
+        data[o] = []
+      data[o].append(df[df[df.columns[qid]] == o].shape[0])
+
+
+  question = df.columns[qrange[0]].split('[')[0]
+
+  frame   = pd.DataFrame(data, index=indices)
+  plotter = frame.plot.bar if vertical else frame.plot.barh
+  plot    = plotter(stacked=stacked, title=question)
+  plot.legend(options, bbox_to_anchor=(1.05, 1), loc="upper left")
+  return plot
+
 ### ΚΥΡΙΩΣ ΣΩΜΑ
 
 def main(win):
@@ -247,7 +300,7 @@ def selector(win):
     win.addstr(1, 0, "Επιλέξτε μια ερώτηση:".center(curses.COLS))
     display  = "<"
     display += " " *3
-    display += vis_name_by_id(current_choice)
+    display += vis_display_name_by_id(current_choice)
     display += " " *3
     display += ">"
     win.addstr(3, 0, display.center(curses.COLS), curses.color_pair(1) | curses.A_BOLD)
