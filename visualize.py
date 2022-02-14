@@ -25,7 +25,7 @@ def sort_age(key):
     return key
 
 def sort_education(key):
-  PREDEFINED = ['Δημοτικό','Γυμνάσιο','Λύκειο','ΙΕΚ','Πανεπιστήμιο ΑΕΙ/ΑΤΕΙ','Μεταπτυχιακό/Διδακτορικό']
+  PREDEFINED = ['Γυμνάσιο','Λύκειο/Τεχνική σχολή','ΙΕΚ','Πανεπιστήμιο ΑΕΙ/ΑΤΕΙ','Μεταπτυχιακό/Διδακτορικό']
 
   if key in PREDEFINED:
     return "{} {}".format(PREDEFINED.index(key),key)
@@ -81,15 +81,41 @@ def sort_privacy_settings(key):
 
   return ORDER.index(key)+1
 
+
+def sort_gender(key):
+  if key == "Άλλο":
+    return 1
+  else:
+    return 0
+
+### Προεπεξεργασία δεδομένων (π.χ. συγχώνευση όμοιων κατηγοριών)
+def preprocessor_why_fb(data):
+  src = 'τον δημιούργησα στο τέλος γυμνασίου γιατί είχαν όλοι και έχει μείνει από τότε'
+  dst = 'Επειδή θεωρούταν κουλ τότε.'
+  if src in data.keys() and dst in data.keys():
+    data[dst] += data[src]
+    del(data[src])
+  return data
+
+def preprocessor_education(data):
+  src = ['secretariat σε μια ιδιωτική σχολή στη Γαλλία ', 'Τεχνική σχολή', 'Λύκειο']
+  dst = 'Λύκειο/Τεχνική σχολή'
+  data[dst] = 0
+  for key in src:
+    if key in data.keys():
+      data[dst] += data[key]
+      del(data[key])
+  return data
+
 ### Συναρτήσεις οπτικοποίησης
 def vis_gender():
-  return vis_pie(1,  "Φύλο", colours=['royalblue','magenta','lightgray'])
+  return vis_pie(1,  "Φύλο", custom_sort=sort_gender, colours=['royalblue','magenta','lightgray'])
 
 def vis_age():
   return vis_pie(2,  "Ηλικία", colours=['#FFCDDA','#FFA5BD','#FF7DA0','#FF5582','#FF2D65'], custom_sort=sort_age)
 
 def vis_education():
-  return vis_pie(3,  "Επίπεδο εκπαίδευσης", custom_sort=sort_education)
+  return vis_pie(3,  "Επίπεδο εκπαίδευσης", custom_sort=sort_education, preprocessor=preprocessor_education)
 
 def vis_fb_importance():
   return vis_pie(5,  "Σημαντικότητα", colours=IMPORTANCE_PALETTE, custom_sort=sort_importance)
@@ -119,7 +145,7 @@ def vis_fb_tip():
   return vis_pie(29, "Άποψη")
 
 def vis_why_fb():
-  return vis_pie(4,  "Άτομα", True)
+  return vis_pie(4,  "Άτομα", True, colours=['#32d88b', '#be44ff', '#ead731', '#264aea', '#ea9917', '#ea2d63', '#6eb251', '#29c2ec', '#ec0000', '#cdcdcd', '#f436d4', '#16f40b', '#6c509d', '#a0a437'], preprocessor=preprocessor_why_fb)
 
 def vis_real_data():
   return vis_bar(6,  "Άτομα", multiple=True, colours='#C45D5F')
@@ -179,19 +205,29 @@ def vis_name_by_id(i):
 def vis_func_by_id(i):
   return VISUALIZEABLE[vis_name_by_id(i)]
 
-def get_data_basic(column_id, label, custom_sort):
-  data = []
+def get_data_basic(column_id, label, custom_sort, preprocessor):
+  data = {}
   col  = df[df.columns[column_id]]
   for v in col.unique():
-    data.append((v, df[col == v].shape[0]))
+    data[v] = df[col == v].shape[0]
+
+  if preprocessor is not None:
+    data = preprocessor(data)
+
+  sets = []
+  for v in data.keys():
+    sets.append((v, data[v]))
+  sets.reverse()
 
   if custom_sort is not None:
-    data = sorted(data, key=lambda x: custom_sort(x[0]))
+    sets = sorted(sets, key=lambda x: custom_sort(x[0]))
+  else: # φθίνουσα σειρά
+    sets = sorted(sets, key=lambda x: x[1])
 
-  return pd.DataFrame({label: [x[1] for x in data]},
-                      index = [x[0] for x in data])
+  return pd.DataFrame({label: [x[1] for x in sets]},
+                      index = [x[0] for x in sets])
 
-def get_data_multiple(column_id, label, custom_sort):
+def get_data_multiple(column_id, label, custom_sort, preprocessor):
   col  = df[df.columns[column_id]]
   data = {}
 
@@ -202,21 +238,25 @@ def get_data_multiple(column_id, label, custom_sort):
       else:
         data[s] += 1
 
+  if preprocessor is not None:
+    data = preprocessor(data)
+
   sets = []
   for v in data.keys():
     sets.append((v, data[v]))
   sets.reverse()
 
-
   if custom_sort is not None:
     sets = sorted(sets, key=lambda x: custom_sort(x[0]))
+  else: # φθίνουσα σειρά
+    sets = sorted(sets, key=lambda x: x[1])
 
   return pd.DataFrame({label: [x[1] for x in sets]},
                       index = [x[0] for x in sets])
 
-def vis_pie(column_id, label, multiple = False, colours = None, custom_sort = None):
+def vis_pie(column_id, label, multiple = False, colours = None, custom_sort = None, preprocessor = None):
   getter = get_data_multiple if multiple else get_data_basic
-  frame  = getter(column_id, label, custom_sort)
+  frame  = getter(column_id, label, custom_sort, preprocessor)
   plot   = frame.plot.pie(y=label,
                           autopct='%1.0f%%',
                           title=df.columns[column_id],
@@ -227,9 +267,9 @@ def vis_pie(column_id, label, multiple = False, colours = None, custom_sort = No
   plot.legend(frame.index, bbox_to_anchor=(1.05, 1), loc="upper left")
   return plot
 
-def vis_bar(column_id, label, vertical = False, colours = None, multiple = False, custom_sort = None):
+def vis_bar(column_id, label, vertical = False, colours = None, multiple = False, custom_sort = None, preprocessor = None):
   getter  = get_data_multiple if multiple else get_data_basic
-  frame   = getter(column_id, label, custom_sort)
+  frame   = getter(column_id, label, custom_sort, preprocessor)
   plotter = frame.plot.bar if vertical else frame.plot.barh
   plot    = plotter(y=label,
                     title=df.columns[column_id],
@@ -239,7 +279,7 @@ def vis_bar(column_id, label, vertical = False, colours = None, multiple = False
   plot.legend([label], bbox_to_anchor=(1.05, 1), loc="upper left")
   return plot
 
-def vis_multibar(qrange, stacked = False, vertical = False, custom_sort = None):
+def vis_multibar(qrange, stacked = False, vertical = False, custom_sort = None, preprocessor = None):
   data    = {}
   indices = []
   options = []
@@ -248,7 +288,10 @@ def vis_multibar(qrange, stacked = False, vertical = False, custom_sort = None):
       if o not in options and pd.notna(o):
         options.append(o)
 
-  if custom_sort:
+  if preprocessor is not None:
+    data = preprocessor(data)
+
+  if custom_sort is not None:
     options = sorted(options, key=lambda x: custom_sort(x))
 
   for qid in qrange:
