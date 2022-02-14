@@ -108,6 +108,16 @@ def preprocessor_education(data):
       del(data[key])
   return data
 
+def preprocessor_ensure_agreement(data):
+  for k in data.keys():
+    if pd.isna(k):
+      del data[k]
+      break
+  for v in AGREEMENT_VALUES:
+    if v not in data.keys():
+      data[v] = 0
+  return data
+
 ### Συναρτήσεις οπτικοποίησης
 def vis_gender():
   return vis_pie(1,  "Φύλο", custom_sort=sort_gender, colours=['royalblue','magenta','lightgray'])
@@ -167,7 +177,7 @@ def vis_decentralized_pop():
   return vis_multibar(range(23,27), stacked=True)
 
 def vis_decentralized_worry():
-  return vis_pie(27, "Άποψη", colours=AGREEMENT_PALETTE, custom_sort=sort_agreement)
+  return vis_pie(27, "Άποψη", colours=AGREEMENT_PALETTE, custom_sort=sort_agreement, preprocessor=preprocessor_ensure_agreement)
 
 VISUALIZEABLE = {
   df.columns[1]:  vis_gender,
