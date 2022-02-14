@@ -11,9 +11,12 @@ check_data()
 
 
 ### Προκαθορισμένες παλέττες
-IMPORTANCE_PALETTE = ['#C44040','#C46C40','#C49840','#C4C440','#98C440','#6CC440','#40C440']
-AGREEMENT_PALETTE  = ['#C44040','#C49840','#D5B900','#98C440','#40C440']
-YES_NO_PALETTE     = ['#C44040','#40C440','#CCCCCC']
+IMPORTANCE_PALETTE = ['#960000','#ff0000','#ff7b00','#ffff00','#95ff00','#00ff00','#00b200']
+AGREEMENT_PALETTE  = ['#960000','#ff7b00','#ffff00','#95ff00','#00b200']
+YES_NO_PALETTE     = ['#ff0000','#00ff00','#CCCCCC']
+
+### Προκαθορισμένες τιμές
+AGREEMENT_VALUES   = {'Διαφωνώ απόλυτα':1, 'Διαφωνώ':2, 'Ούτε συμφωνώ ούτε διαφωνώ':3, 'Συμφωνώ':4, 'Συμφωνώ απόλυτα':5}
 
 ### Συναρτήσεις σωστής ταξινόμισης
 def sort_age(key):
@@ -41,10 +44,8 @@ def sort_importance(key):
   return 99
 
 def sort_agreement(key):
-  VALUES = {'Διαφωνώ απόλυτα':1, 'Διαφωνώ':2, 'Ούτε συμφωνώ ούτε διαφωνώ':3, 'Συμφωνώ':4, 'Συμφωνώ απόλυτα':5}
-
-  if key in VALUES:
-    return VALUES[key]
+  if key in AGREEMENT_VALUES:
+    return AGREEMENT_VALUES[key]
 
   return 99
 
